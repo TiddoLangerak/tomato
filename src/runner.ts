@@ -39,22 +39,29 @@ export async function runAll() {
   });
 }
 
+declare global {
+  var __tomato_port: MessagePort | undefined;
+}
+
 function setupLoaderComms() {
   if (!globalThis.__tomato_port) {
     console.error("Watchmode needs the tomato watcher set up");
     process.exit(1);
   }
-  globalThis.__tomato_port.postMessage({ type: 'addIgnoreFile', file: fileURLToPath(import.meta.url) });
-  globalThis.__tomato_port.on('message', async (evt) => {
-    switch (evt.type) {
+  globalThis.__tomato_port.postMessage({ type: 'addIgnoreFile',
+    file: fileURLToPath(import.meta.url)
+  });
+  globalThis.__tomato_port.onmessage = async (evt: MessageEvent) => {
+    const { data } = evt;
+    switch (data.type) {
       case 'dependencies':
-        debugLog("Received dependencies", evt.deps);
-        addWatchers(evt.deps);
+        debugLog("Received dependencies", data.deps);
+        addWatchers(data.deps);
         break;
       case 'affected':
-        debugLog("Received affected", evt.affected);
+        debugLog("Received affected", data.affected);
 
-        const retest = [...evt.affected]
+        const retest = [...data.affected]
           .filter(f => testFiles.has(f));
 
         if (retest.length) {
@@ -65,9 +72,9 @@ function setupLoaderComms() {
 
         break;
       default:
-        debugLog(`Unknown message ${evt.type}`);
+        debugLog(`Unknown message ${data.type}`);
     }
-  });
+  };
 }
 
 async function runTests(files: Iterable<string>) {
@@ -80,7 +87,7 @@ async function runTests(files: Iterable<string>) {
   printAndResetSummary();
 
   if (watchMode) {
-    globalThis.__tomato_port.postMessage({
+    globalThis.__tomato_port?.postMessage({
       type: 'getAllDependencies',
       files: [...files]
     });
@@ -101,15 +108,15 @@ function addWatchers(files: Iterable<string>) {
 }
 
 const changed: Set<string> = new Set();
-let retestTimeout = null;
-function fileChanged(file) {
+let retestTimeout: NodeJS.Timeout | null = null;
+function fileChanged(file: string) {
   debugLog("File changed", file);
   changed.add(file);
 
-  clearTimeout(retestTimeout);
+  retestTimeout && clearTimeout(retestTimeout);
   retestTimeout = setTimeout(() => {
     debugLog("Getting all affected for", changed);
-    globalThis.__tomato_port.postMessage({
+    globalThis.__tomato_port?.postMessage({
       type: 'getAllAffected',
       files: [...changed]
     });

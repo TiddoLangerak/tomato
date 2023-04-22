@@ -4,6 +4,10 @@
     "target": "es2022",
     "module": "es2022",
     "moduleResolution": "nodenext",
-    "outDir": "lib",
-  }
+    "outDir": "./lib",
+    "strict": true
+  },
+  "include": [
+    "./src"
+  ]
 }
