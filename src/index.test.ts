@@ -1,4 +1,6 @@
 import { assert, test, given, then, when } from './index.js';
+import { foo } from './shared-dep.js';
+foo();
 
 await test('successful test', () => {
   given("two numbers");

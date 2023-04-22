@@ -2,6 +2,7 @@ import { green, red } from "./colors.js";
 import util from 'util';
 import { fileURLToPath } from 'node:url';
 import path from 'path';
+import fs from 'fs/promises';
 
 
 type Awaitable<T> = Promise<T> | T;
@@ -126,12 +127,74 @@ async function runAll() {
 
   process.stdin.on('end', async () => {
     const content = chunks.join('');
-    const files = content.split('\n')
+    const testFiles = new Set(content.split('\n')
       .map(f => f.trim())
       .filter(f => f)
-      .map(f => path.resolve(process.cwd(), f));
-    for (const file of files) {
+      .map(f => path.resolve(process.cwd(), f)));
+    for (const file of testFiles) {
       await import(file);
     }
+    // TODO: fix when we trigger the summary
+
+
+    const watchedFiles: Set<string> = new Set();
+    function addWatchers(files: Set<string>) {
+      [...files]
+        .filter(file => !watchedFiles.has(file))
+        .forEach(async file => {
+          console.log(`watching ${file}`);
+          watchedFiles.add(file);
+          // TODO: add signal for cancelling
+          for await (const event of fs.watch(file)) {
+            fileChanged(file);
+          }
+        });
+    }
+
+    const changed: Set<string> = new Set();
+    let msgTimeout = null;
+    function fileChanged(file) {
+      console.log("File changed", file);
+      changed.add(file);
+      clearTimeout(msgTimeout);
+      msgTimeout = setTimeout(() => {
+        console.log("Getting all affected for", changed);
+        globalThis.__tomato_port.postMessage({
+          type: 'getAllAffected',
+          files: [...changed]
+        });
+        changed.clear();
+      }, 500);
+    }
+
+    globalThis.__tomato_port.postMessage({
+      type: 'getAllDependencies',
+      files: [...testFiles]
+    });
+    globalThis.__tomato_port.on('message', async (evt) => {
+      switch (evt.type) {
+        case 'dependencies':
+          console.log("Received dependencies", evt.deps);
+          addWatchers(evt.deps);
+          break;
+        case 'affected':
+          console.log("Received affected", evt.affected);
+          const retest = [...evt.affected]
+            .filter(f => testFiles.has(f));
+          console.log('Retesting', retest);
+          // TODO:
+          // - Move this out
+          // - Start watchers again where needed
+          for (const f of retest) {
+            await import(f + `?${Date.now()}`);
+          }
+          break;
+        default:
+          console.error(`Unknown message ${evt.type}`);
+      }
+    });
+    //globalThis.__tomato_port.unref();
+    return;
+
   });
 }

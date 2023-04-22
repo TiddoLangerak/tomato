@@ -1,4 +1,6 @@
 import { given, test, then, when } from './index.js';
+import { foo } from './shared-dep.js';
+foo();
 
 await test("Another test", () => {
   given("nothing");
