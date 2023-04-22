@@ -30,5 +30,6 @@ find src/**/*.test.ts | npx ts-node-esm tomato
 ```
 
 # How to run in watch mode?
+Not implemented
 
 
