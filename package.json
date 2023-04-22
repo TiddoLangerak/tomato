@@ -5,6 +5,7 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "type": "module",
+  "repository": "github:TiddoLangerak/tomato",
   "scripts": {
     "clean": "rm -rf lib",
     "build": "tsc",
