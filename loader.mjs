@@ -8,8 +8,7 @@ function debugLog(...args) {
   console.log(...args);
 }
 
-// TODO: get this dynamically
-const ignore = ['/home/tiddo/repos/tomato/lib/index.js', '/home/tiddo/repos/tomato/lib/index.ts'];
+const ignore = [];
 
 export async function resolve(specifier, context, nextResolve) {
   const { parentURL = null } = context;
@@ -28,9 +27,6 @@ export async function resolve(specifier, context, nextResolve) {
 
   return res;
 }
-
-// TODO: merge the 2 resolve functions. They're the same.
-
 
 function findChildren(start, tree, acc = new Set()) {
   acc.add(start);
@@ -72,6 +68,9 @@ export function globalPreload({ port }) {
         });
         port.unref();
         break;
+      case 'addIgnoreFile':
+        debugLog("Addding ignore file", data.file);
+        ignore.push(data.file);
       default:
         debugLog(`Unknown message ${data.type}`);
     }

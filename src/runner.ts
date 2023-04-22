@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs/promises';
 import { printAndResetSummary } from './summary.js';
+import { fileURLToPath } from 'node:url';
 
 const testFiles = new Set();
 const watchMode = process.argv[2] === '-w';
@@ -17,7 +18,7 @@ export async function runAll() {
   }
 
   if (watchMode) {
-    setupLoaderListener();
+    setupLoaderComms();
   }
 
   process.stdin.on('readable', () => {
@@ -38,11 +39,12 @@ export async function runAll() {
   });
 }
 
-function setupLoaderListener() {
+function setupLoaderComms() {
   if (!globalThis.__tomato_port) {
     console.error("Watchmode needs the tomato watcher set up");
     process.exit(1);
   }
+  globalThis.__tomato_port.postMessage({ type: 'addIgnoreFile', file: fileURLToPath(import.meta.url) });
   globalThis.__tomato_port.on('message', async (evt) => {
     switch (evt.type) {
       case 'dependencies':
