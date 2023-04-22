@@ -2,7 +2,6 @@ import { green, red } from "./colors.js";
 import util from 'util';
 import { fileURLToPath } from 'node:url';
 import path from 'path';
-import { walk } from "./filewalker.js";
 
 
 type Awaitable<T> = Promise<T> | T;

@@ -1,3 +1,13 @@
+# What is tomato?
+
+It's a test runner, based on cucumber test syntax.
+
+# Why?
+
+I think the "given-when-then" approach of writing tests is superior to "test()" or "describe()/it()" style tests.
+Well written tests in other frameworks already implicitly follow a given-when-then approach,
+so it only makes sense to build it as a core part of the framework.
+
 # How to write tests
 
 See `index.test.ts` for example
@@ -31,5 +41,4 @@ find src/**/*.test.ts | npx ts-node-esm tomato
 
 # How to run in watch mode?
 Not implemented
-
 
