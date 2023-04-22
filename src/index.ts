@@ -109,14 +109,30 @@ if (process.argv[1] === currentFile) {
 
 
 async function runAll() {
-  const root = path.resolve(process.cwd(), process.argv[2] ?? ".");
-  for await (const file of walk(root)) {
-    if (file.endsWith('.test.ts') || file.endsWith('.test.js')) {
-      try {
-        await import(file);
-      } catch (e) {
-        console.error(e);
-      }
-    }
+  const chunks = [];
+
+  if (process.stdin.isTTY) {
+    console.log("Please enter the paths to your test files separated by whitespace, and then end with an EOF (ctrl+d)");
+    console.warn("You likely intended to pass in test files from stdin, such as:")
+    console.log("find *.test.ts | tomato");
+
   }
+
+  process.stdin.on('readable', () => {
+    let chunk;
+    while (null !== (chunk = process.stdin.read())) {
+      chunks.push(chunk);
+    }
+  });
+
+  process.stdin.on('end', async () => {
+    const content = chunks.join('');
+    const files = content.split('\n')
+      .map(f => f.trim())
+      .filter(f => f)
+      .map(f => path.resolve(process.cwd(), f));
+    for (const file of files) {
+      await import(file);
+    }
+  });
 }
