@@ -39,6 +39,9 @@ TODO: I think this can be generalized. IIRC, node nowadays supports module loade
 find src/**/*.test.ts | npx ts-node-esm tomato
 ```
 
-# How to run in watch mode?
-Not implemented
+# How to run in watch mode? (experimental)
+Register the `loader` when running the tests, and run it with the `-w` flag
+```
+node --loader tomato/loader tomato -w
+```
 

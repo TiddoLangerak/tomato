@@ -16,8 +16,8 @@ type Failure = {
   error: any,
   file: string
 };
-const successes: Success[] = [];
-const failures: Failure[] = [];
+let successes: Success[] = [];
+let failures: Failure[] = [];
 
 function getCallerFile(currentFunc: Function) {
   const cap: { stack: string } = { stack: ""};
@@ -78,7 +78,7 @@ export function assert(res: boolean) {
   }
 }
 
-process.on('beforeExit', () => {
+function printAndResetSummary() {
   let lastFile: string = "";
   if (successes.length || failures.length) {
     console.log("\n=============================\n");
@@ -96,15 +96,22 @@ process.on('beforeExit', () => {
       console.log(`        Test: ${failure.description}`);
       console.log(`        Failure:`);
       console.log(red(util.inspect(failure.error).replaceAll(/^/mg, '            ')));
-      console.log("");
     }
-
+    console.log("\n=============================\n");
+    successes = [];
+    failures = [];
   }
-});
+}
+
+
+const watchMode = process.argv[2] === '-w';
+const testFiles = new Set();
 
 const currentFile = fileURLToPath(import.meta.url);
 if (process.argv[1] === currentFile) {
   runAll();
+} else {
+  process.on('beforeExit', printAndResetSummary);
 }
 
 
@@ -118,6 +125,10 @@ async function runAll() {
 
   }
 
+  if (watchMode) {
+    setupLoaderListener();
+  }
+
   process.stdin.on('readable', () => {
     let chunk;
     while (null !== (chunk = process.stdin.read())) {
@@ -127,79 +138,92 @@ async function runAll() {
 
   process.stdin.on('end', async () => {
     const content = chunks.join('');
-    const testFiles = new Set(content.split('\n')
+    const files = new Set(content.split('\n')
       .map(f => f.trim())
       .filter(f => f)
       .map(f => path.resolve(process.cwd(), f)));
 
-    runTests(testFiles);
-
-    async function runTests(testFiles: Iterable<string>) {
-      for (const file of testFiles) {
-        await import(`${file}?time=${Date.now()}`);
-      }
-      globalThis.__tomato_port.postMessage({
-        type: 'getAllDependencies',
-        files: [...testFiles]
-      });
-    }
-
-    // TODO: fix when we trigger the summary
-
-
-    const watchedFiles: Set<string> = new Set();
-    function addWatchers(files: Set<string>) {
-      [...files]
-        .filter(file => !watchedFiles.has(file))
-        .forEach(async file => {
-          debugLog(`watching ${file}`);
-          watchedFiles.add(file);
-          for await (const event of fs.watch(file)) {
-            fileChanged(file);
-          }
-        });
-    }
-
-    const changed: Set<string> = new Set();
-    let msgTimeout = null;
-    function fileChanged(file) {
-      debugLog("File changed", file);
-      changed.add(file);
-      clearTimeout(msgTimeout);
-      msgTimeout = setTimeout(() => {
-        debugLog("Getting all affected for", changed);
-        globalThis.__tomato_port.postMessage({
-          type: 'getAllAffected',
-          files: [...changed]
-        });
-        changed.clear();
-      }, 500);
-    }
-
-    globalThis.__tomato_port.on('message', async (evt) => {
-      switch (evt.type) {
-        case 'dependencies':
-          debugLog("Received dependencies", evt.deps);
-          addWatchers(evt.deps);
-          break;
-        case 'affected':
-          debugLog("Received affected", evt.affected);
-          const retest = [...evt.affected]
-            .filter(f => testFiles.has(f));
-          if (retest.length) {
-            console.log(`Files changed, rerunning affected tests`);
-            console.log("");
-            runTests(retest);
-          }
-          break;
-        default:
-          debugLog(`Unknown message ${evt.type}`);
-      }
-    });
-    return;
-
+    runTests(files);
   });
 }
+
+function setupLoaderListener() {
+  if (!globalThis.__tomato_port) {
+    console.error("Watchmode needs the tomato watcher set up");
+    process.exit(1);
+  }
+  globalThis.__tomato_port.on('message', async (evt) => {
+    switch (evt.type) {
+      case 'dependencies':
+        debugLog("Received dependencies", evt.deps);
+        addWatchers(evt.deps);
+        break;
+      case 'affected':
+        debugLog("Received affected", evt.affected);
+
+        const retest = [...evt.affected]
+          .filter(f => testFiles.has(f));
+
+        if (retest.length) {
+          console.log(`Files changed, rerunning affected tests`);
+          console.log("");
+          runTests(retest);
+        }
+
+        break;
+      default:
+        debugLog(`Unknown message ${evt.type}`);
+    }
+  });
+}
+
+async function runTests(files: Iterable<string>) {
+  // TODO: probably needs some extra logic here to make sure only 1 run at a time is triggered
+  [...files].forEach(f => testFiles.add(f));
+  for (const file of files) {
+    await import(`${file}?_tomato=${Date.now()}`);
+  }
+
+  printAndResetSummary();
+
+  if (watchMode) {
+    globalThis.__tomato_port.postMessage({
+      type: 'getAllDependencies',
+      files: [...files]
+    });
+  }
+}
+
+const watchedFiles: Set<string> = new Set();
+function addWatchers(files: Iterable<string>) {
+  [...files]
+    .filter(file => !watchedFiles.has(file))
+    .forEach(async file => {
+      debugLog(`watching ${file}`);
+      watchedFiles.add(file);
+      for await (const event of fs.watch(file)) {
+        fileChanged(file);
+      }
+    });
+}
+
+const changed: Set<string> = new Set();
+let retestTimeout = null;
+function fileChanged(file) {
+  debugLog("File changed", file);
+  changed.add(file);
+
+  clearTimeout(retestTimeout);
+  retestTimeout = setTimeout(() => {
+    debugLog("Getting all affected for", changed);
+    globalThis.__tomato_port.postMessage({
+      type: 'getAllAffected',
+      files: [...changed]
+    });
+    changed.clear();
+  }, 500);
+}
+
 
 function debugLog(...args: any[]) {
   return;
