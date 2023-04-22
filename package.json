@@ -11,6 +11,9 @@
     "build": "tsc",
     "prepublish": "pnpm run clean && pnpm run build"
   },
+  "bin": {
+    "tomato": "./lib/cli.js"
+  },
   "keywords": [],
   "author": "Tiddo Langerak",
   "license": "GPL-3.0-or-later",
@@ -18,6 +21,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
+    "@tiddo/tomato": "^0.1.0",
     "@types/node": "^18.15.13",
     "pnpm": "^8.3.1",
     "ts-node": "^10.9.1"
