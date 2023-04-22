@@ -3,6 +3,11 @@ import { fileURLToPath } from 'node:url';
 const dependencies = {};
 const dependants = {};
 
+function debugLog(...args) {
+  return;
+  console.log(...args);
+}
+
 // TODO: get this dynamically
 const ignore = ['/home/tiddo/repos/tomato/lib/index.js', '/home/tiddo/repos/tomato/lib/index.ts'];
 
@@ -50,7 +55,7 @@ export function globalPreload({ port }) {
     const data = evt.data;
     switch (data.type) {
       case 'getAllAffected':
-        console.log("Getting all affected for", data.files, dependants);
+        debugLog("Getting all affected for", data.files, dependants);
         const affected = findChildrenBulk(data.files, dependants);
         port.postMessage({
           type: 'affected',
@@ -59,7 +64,7 @@ export function globalPreload({ port }) {
         port.unref();
         break;
       case 'getAllDependencies':
-        console.log("Getting all dependencies for", data.files, dependants);
+        debugLog("Getting all dependencies for", data.files, dependants);
         const deps = findChildrenBulk(data.files, dependencies);
         port.postMessage({
           type: 'dependencies',
@@ -68,7 +73,7 @@ export function globalPreload({ port }) {
         port.unref();
         break;
       default:
-        console.error(`Unknown message ${data.type}`);
+        debugLog(`Unknown message ${data.type}`);
     }
   }
 

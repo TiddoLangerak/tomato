@@ -131,9 +131,19 @@ async function runAll() {
       .map(f => f.trim())
       .filter(f => f)
       .map(f => path.resolve(process.cwd(), f)));
-    for (const file of testFiles) {
-      await import(file);
+
+    runTests(testFiles);
+
+    async function runTests(testFiles: Iterable<string>) {
+      for (const file of testFiles) {
+        await import(`${file}?time=${Date.now()}`);
+      }
+      globalThis.__tomato_port.postMessage({
+        type: 'getAllDependencies',
+        files: [...testFiles]
+      });
     }
+
     // TODO: fix when we trigger the summary
 
 
@@ -142,9 +152,8 @@ async function runAll() {
       [...files]
         .filter(file => !watchedFiles.has(file))
         .forEach(async file => {
-          console.log(`watching ${file}`);
+          debugLog(`watching ${file}`);
           watchedFiles.add(file);
-          // TODO: add signal for cancelling
           for await (const event of fs.watch(file)) {
             fileChanged(file);
           }
@@ -154,11 +163,11 @@ async function runAll() {
     const changed: Set<string> = new Set();
     let msgTimeout = null;
     function fileChanged(file) {
-      console.log("File changed", file);
+      debugLog("File changed", file);
       changed.add(file);
       clearTimeout(msgTimeout);
       msgTimeout = setTimeout(() => {
-        console.log("Getting all affected for", changed);
+        debugLog("Getting all affected for", changed);
         globalThis.__tomato_port.postMessage({
           type: 'getAllAffected',
           files: [...changed]
@@ -167,34 +176,32 @@ async function runAll() {
       }, 500);
     }
 
-    globalThis.__tomato_port.postMessage({
-      type: 'getAllDependencies',
-      files: [...testFiles]
-    });
     globalThis.__tomato_port.on('message', async (evt) => {
       switch (evt.type) {
         case 'dependencies':
-          console.log("Received dependencies", evt.deps);
+          debugLog("Received dependencies", evt.deps);
           addWatchers(evt.deps);
           break;
         case 'affected':
-          console.log("Received affected", evt.affected);
+          debugLog("Received affected", evt.affected);
           const retest = [...evt.affected]
             .filter(f => testFiles.has(f));
-          console.log('Retesting', retest);
-          // TODO:
-          // - Move this out
-          // - Start watchers again where needed
-          for (const f of retest) {
-            await import(f + `?${Date.now()}`);
+          if (retest.length) {
+            console.log(`Files changed, rerunning affected tests`);
+            console.log("");
+            runTests(retest);
           }
           break;
         default:
-          console.error(`Unknown message ${evt.type}`);
+          debugLog(`Unknown message ${evt.type}`);
       }
     });
-    //globalThis.__tomato_port.unref();
     return;
 
   });
+}
+
+function debugLog(...args: any[]) {
+  return;
+  console.log(...args);
 }
