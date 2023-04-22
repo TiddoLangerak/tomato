@@ -11,8 +11,8 @@
     "prepublish": "pnpm run clean && pnpm run build"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "Tiddo Langerak",
+  "license": "GPL-3.0-or-later",
   "devDependencies": {
     "typescript": "^5.0.4"
   },
