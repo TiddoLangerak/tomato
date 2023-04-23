@@ -22,7 +22,10 @@ export function printAndResetSummary() {
     console.log(`    Successes: ${successes.length}`);
     console.log(`    Failures: ${failures.length}`);
     console.log("");
-    console.log("Tests failed:");
+
+    if (failures.length) {
+      console.log("Tests failed:");
+    }
     for (const failure of failures) {
       if (failure.file !== lastFile) {
         console.log(`    File: ${failure.file}`);

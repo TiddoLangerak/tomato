@@ -38,11 +38,11 @@ export async function test(description: string, fn: () => Awaitable<void>) {
 }
 
 export function given(description: string) {
-  console.log(`    given  ${description}`);
+  console.log(`    Given  ${description}`);
 }
 
 export function when(description: string) {
-  console.log(`    when   ${description}`);
+  console.log(`    When   ${description}`);
 }
 
 export function then(description: string) {
@@ -51,5 +51,9 @@ export function then(description: string) {
   if (typeof description === 'function') {
     return;
   }
-  console.log(`    then   ${description}`);
+  console.log(`    Then   ${description}`);
+}
+
+export function and(description: string) {
+  console.log(`    And   ${description}`);
 }
