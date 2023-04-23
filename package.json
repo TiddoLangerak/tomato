@@ -24,7 +24,7 @@
   "author": "Tiddo Langerak",
   "license": "GPL-3.0-or-later",
   "devDependencies": {
-    "@tiddo/tomato": "^0.2.2",
+    "@tomato/tomato": "^0.2.3",
     "typescript": "^5.0.4"
   },
   "dependencies": {

@@ -1,7 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@tiddo/tomato': ^0.2.2
+  '@tomato/tomato': ^0.2.3
   '@types/node': ^18.15.13
   pnpm: ^8.3.1
   ts-node: ^10.9.1
@@ -13,7 +13,7 @@ dependencies:
   ts-node: 10.9.1_jplwry3w2vlzigyuop7zuee6tu
 
 devDependencies:
-  '@tiddo/tomato': 0.2.2_typescript@5.0.4
+  '@tomato/tomato': 0.2.3_typescript@5.0.4
   typescript: 5.0.4
 
 packages:
@@ -37,8 +37,8 @@ packages:
       '@jridgewell/resolve-uri': 3.1.1
       '@jridgewell/sourcemap-codec': 1.4.15
 
-  /@tiddo/tomato/0.2.2_typescript@5.0.4:
-    resolution: {integrity: sha512-JOuf8lbCx4Bm5rDNe46oXFwfHcL0oc55dye9CyEJggEhMPdTSYKoEaKRFIYiemLXMRh/R2P6vjf9keypuQrgFw==}
+  /@tomato/tomato/0.2.3_typescript@5.0.4:
+    resolution: {integrity: sha512-J79hqM/xBbD4YviaswMPJtxCYv4PfLuTt04pzNpL3+JddwyAU83vqoQWfL0oL4wjplJCPALIlB8KL09QhsUBvg==}
     hasBin: true
     dependencies:
       '@types/node': 18.15.13
