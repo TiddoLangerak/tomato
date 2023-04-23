@@ -1,5 +1,5 @@
 {
-  "name": "@tiddo/tomato",
+  "name": "@tomato/tomato",
   "version": "0.2.2",
   "description": "Unit test framework using cucumber-style tests",
   "main": "lib/index.js",
@@ -11,7 +11,7 @@
     "build": "tsc",
     "prepublishOnly": "pnpm run clean && pnpm run build",
     "test": "find src/*.test.ts | NODE_OPTIONS='--loader ts-node/esm' tomato",
-    "watch-test": "find src/*.test.ts | NODE_OPTIONS='--loader ts-node/esm --loader @tiddo/tomato/loader' tomato -w"
+    "watch-test": "find src/*.test.ts | NODE_OPTIONS='--loader ts-node/esm --loader @tomato/tomato/loader' tomato -w"
   },
   "bin": {
     "tomato": "./lib/cli.js"

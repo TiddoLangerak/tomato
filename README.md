@@ -40,7 +40,7 @@ find src/**/*.test.ts | NODE_OPTIONS="--loader ts-node/esm" tomato
 # How to run in watch mode? (experimental)
 Register the `loader` when running the tests, and run it with the `-w` flag
 ```
-find src/**/*.test.js | NODE_OPTIONS="--loader @tiddo/tomato/loader" tomato -w
+find src/**/*.test.js | NODE_OPTIONS="--loader @tomato/tomato/loader" tomato -w
 ```
 
 ## Source code transformations in watch mode
@@ -58,7 +58,7 @@ find lib/**/*.test.js | node --loader tomato/loader tomato -w
 
 ### 2. Chain multiple loaders (Node >= 18.16.0)
 ```
-find src/**/*.test.ts | NODE_OPTIONS="--loader ts-node/esm --loader @tiddo/tomato/loader" tomato
+find src/**/*.test.ts | NODE_OPTIONS="--loader ts-node/esm --loader @tomato/tomato/loader" tomato
 ```
 
 Please note that the tomato-loader must be the **last** in the chain.
