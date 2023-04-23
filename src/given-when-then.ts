@@ -1,6 +1,6 @@
 import { green, red } from "./colors.js";
 import util from 'util';
-import { Awaitable, getCallerFile } from "./util.js";
+import { Awaitable, formatError, getCallerFile, withIndent } from "./util.js";
 import { failures, successes } from "./summary.js";
 
 let lastTestFile: string = '';
@@ -27,13 +27,14 @@ export async function test(description: string, fn: () => Awaitable<void>) {
   }
   lastTestFile = file;
   console.log(`    Test: ${description}`)
+  console.log("");
   try {
     await fn();
-    console.log(green(`        Test succeeded`));
+    console.log(green(`           Test succeeded`));
     successes.push({ description, file });
   } catch (e) {
-    console.error(red(util.inspect(e).replaceAll(/^/mg, '           ')));
-    console.log(red(`        Test failed`));
+    console.log(red(`           Test failed`));
+    console.error(withIndent(formatError(e), '           '));
     failures.push({ description, file, error: e });
   }
   console.log("");
@@ -57,5 +58,5 @@ export function then(description: string) {
 }
 
 export function and(description: string) {
-  console.log(`    And   ${description}`);
+  console.log(`    And    ${description}`);
 }

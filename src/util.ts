@@ -1,4 +1,6 @@
 import { fileURLToPath } from 'node:url';
+import { red } from "./colors.js";
+import util from 'util';
 
 /**
  * Gets the full file path of the caller of the passed in function.
@@ -16,3 +18,19 @@ export function getCallerFile(currentFunc: Function): string {
 
 export type Awaitable<T> = Promise<T> | T;
 
+
+export function formatError(e: any): string {
+  if (e && typeof e === 'object' && 'displayError' in e && typeof e.displayError === 'function') {
+    return e.displayError();
+  } else {
+    return red(util.inspect(e).replaceAll(/^/mg, '           '));
+  }
+}
+
+export function withIndent(msg: string, indent: string): string {
+  return msg.replaceAll(/^/mg, indent);
+}
+
+export function formatValue(val: any): string {
+  return typeof val === 'string' ? val : util.inspect(val);
+}

@@ -1,3 +1,6 @@
+import { formatValue, withIndent } from "./util.js";
+import util from 'node:util';
+
 export type ExpectationError = {
   displayError: () => string;
 };
@@ -11,8 +14,10 @@ export class NotIdenticalError<T> extends BaseExpectationError {
   constructor(expected: T, other: T) {
     super(
 `Expected values to be equal.
-Expected: ${expected}
-Found: ${other}`);
+Expected:
+${withIndent(formatValue(expected), '    │')}
+Found:
+${withIndent(formatValue(other), '    │')}`);
   }
 }
 

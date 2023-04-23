@@ -1,5 +1,6 @@
 import { red } from "./colors.js";
 import util from 'util';
+import { formatError, withIndent } from "./util.js";
 
 export type Success = {
   description: string,
@@ -17,13 +18,13 @@ export let failures: Failure[] = [];
 export function printAndResetSummary() {
   let lastFile: string = "";
   if (successes.length || failures.length) {
-    console.log("\n=============================\n");
+    console.log("══════════════════════════════\n");
     console.log("Summary:");
     console.log(`    Successes: ${successes.length}`);
     console.log(`    Failures: ${failures.length}`);
-    console.log("");
 
     if (failures.length) {
+      console.log("");
       console.log("Tests failed:");
     }
     for (const failure of failures) {
@@ -34,9 +35,9 @@ export function printAndResetSummary() {
       lastFile = failure.file;
       console.log(`        Test: ${failure.description}`);
       console.log(`        Failure:`);
-      console.log(red(util.inspect(failure.error).replaceAll(/^/mg, '            ')));
+      console.error(withIndent(formatError(failure.error) , '            '));
     }
-    console.log("\n=============================\n");
+    console.log("\n══════════════════════════════");
     successes = [];
     failures = [];
   }
