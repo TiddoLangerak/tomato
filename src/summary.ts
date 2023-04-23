@@ -13,6 +13,7 @@ export type Failure = {
 export let successes: Success[] = [];
 export let failures: Failure[] = [];
 
+// TODO: this seems to be broken, nothing prints for either watch or non-watch mode
 export function printAndResetSummary() {
   let lastFile: string = "";
   if (successes.length || failures.length) {
