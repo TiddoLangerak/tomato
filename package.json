@@ -10,8 +10,8 @@
     "clean": "rm -rf lib",
     "build": "tsc",
     "prepublishOnly": "pnpm run clean && pnpm run build",
-    "test": "find src/*.test.ts | NODE_OPTIONS='--loader ts-node/esm' tomato",
-    "watch-test": "find src/*.test.ts | NODE_OPTIONS='--loader ts-node/esm --loader @tomato/tomato/loader' tomato -w"
+    "test": "find src/*.test.ts | NODE_OPTIONS='--loader ts-node/esm --no-warnings' tomato",
+    "watch-test": "find src/*.test.ts | NODE_OPTIONS='--loader ts-node/esm --loader @tomato/tomato/loader --no-warnings' tomato -w"
   },
   "bin": {
     "tomato": "./lib/cli.js"
