@@ -35,7 +35,7 @@ export async function runAll() {
       .filter(f => f)
       .map(f => path.resolve(process.cwd(), f)));
 
-    runTests(files);
+    await runTests(files);
   });
 }
 
@@ -67,7 +67,7 @@ function setupLoaderComms() {
         if (retest.length) {
           console.log(`Files changed, rerunning affected tests`);
           console.log("");
-          runTests(retest);
+          await runTests(retest);
         }
 
         break;
@@ -81,7 +81,11 @@ async function runTests(files: Iterable<string>) {
   // TODO: probably needs some extra logic here to make sure only 1 run at a time is triggered
   [...files].forEach(f => testFiles.add(f));
   for (const file of files) {
-    await import(`${file}?_tomato=${Date.now()}`);
+    try {
+      await import(`${file}?_tomato=${Date.now()}`);
+    } catch(e) {
+      console.error(`Failed running file ${file}`, e);
+    }
   }
 
   printAndResetSummary();

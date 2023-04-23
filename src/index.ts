@@ -3,7 +3,7 @@ import { printAndResetSummary } from './summary.js';
 export * from './given-when-then.js';
 export * from './assert.js';
 
-if (!globalThis.__tomato_runner) {
+if (!("__tomato_runner" in globalThis)) {
   process.on('beforeExit', printAndResetSummary);
 }
 

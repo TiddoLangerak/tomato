@@ -9,10 +9,16 @@
   "scripts": {
     "clean": "rm -rf lib",
     "build": "tsc",
-    "prepublish": "pnpm run clean && pnpm run build"
+    "prepublish": "pnpm run clean && pnpm run build",
+    "test": "find src/*.test.ts | NODE_OPTIONS='--loader ts-node/esm' tomato",
+    "watch-test": "find src/*.test.ts | NODE_OPTIONS='--loader ts-node/esm --loader @tiddo/tomato/loader' tomato -w"
   },
   "bin": {
     "tomato": "./lib/cli.js"
+  },
+  "exports": {
+    "." : "./lib/index.js",
+    "./loader": "./loader.mjs"
   },
   "keywords": [],
   "author": "Tiddo Langerak",
@@ -21,7 +27,7 @@
     "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@tiddo/tomato": "^0.1.0",
+    "@tiddo/tomato": "^0.2.0",
     "@types/node": "^18.15.13",
     "pnpm": "^8.3.1",
     "ts-node": "^10.9.1"

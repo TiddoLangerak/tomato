@@ -1,14 +1,14 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@tiddo/tomato': ^0.1.0
+  '@tiddo/tomato': ^0.2.0
   '@types/node': ^18.15.13
   pnpm: ^8.3.1
   ts-node: ^10.9.1
   typescript: ^5.0.4
 
 dependencies:
-  '@tiddo/tomato': 0.1.0_typescript@5.0.4
+  '@tiddo/tomato': 0.2.0_typescript@5.0.4
   '@types/node': 18.15.13
   pnpm: 8.3.1
   ts-node: 10.9.1_jplwry3w2vlzigyuop7zuee6tu
@@ -44,6 +44,20 @@ packages:
   /@tiddo/tomato/0.1.0_typescript@5.0.4:
     resolution: {integrity: sha512-tslNMzCsAlmCjEm4d1sqUFSEVscnsQlzpV+TJnqJUKAyO614cube8YY2fhkfPnbICKfgaSPwwAElYl41tZ9iRA==}
     dependencies:
+      '@types/node': 18.15.13
+      pnpm: 8.3.1
+      ts-node: 10.9.1_jplwry3w2vlzigyuop7zuee6tu
+    transitivePeerDependencies:
+      - '@swc/core'
+      - '@swc/wasm'
+      - typescript
+    dev: false
+
+  /@tiddo/tomato/0.2.0_typescript@5.0.4:
+    resolution: {integrity: sha512-wJ2VT0xZ856xXhsTC9aN8I/gv8u5vw/8Em+c8mBQGnN4M9xSXRbgDyaHIdb2ssdoeox5nH310AmROX6FoF6vkg==}
+    hasBin: true
+    dependencies:
+      '@tiddo/tomato': 0.1.0_typescript@5.0.4
       '@types/node': 18.15.13
       pnpm: 8.3.1
       ts-node: 10.9.1_jplwry3w2vlzigyuop7zuee6tu

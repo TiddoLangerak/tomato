@@ -15,7 +15,7 @@ See `index.test.ts` for example
 # How to run
 ## Option 1: run any test file individually
 
-The tests can be executed directly. E.g. `node my-test.test.ts`
+The tests can be executed directly. E.g. `node my-test.test.js`
 
 ## Option 2: run entire test suite
 
@@ -32,28 +32,21 @@ find src/**/*.test.js | npx tomato
 tsc && find lib/**/*.test.js | npx tomato
 ```
 
-## Option 2 (typescript specific): run with ts-node
+## Option 2: run with a loader (experimental)
 ```
-find src/**/*.test.ts | npx ts-node-esm tomato
-```
-
-## Option 3: run with a loader (experimental)
-```
-find src/**/*.test.ts | node --loader ts-node/esm tomato
+find src/**/*.test.ts | NODE_OPTIONS="--loader ts-node/esm" tomato
 ```
 
 # How to run in watch mode? (experimental)
 Register the `loader` when running the tests, and run it with the `-w` flag
 ```
-find src/**/*.test.js | node --loader tomato/loader tomato -w
+find src/**/*.test.js | NODE_OPTIONS="--loader @tiddo/tomato/loader" tomato -w
 ```
 
-## Caveats:
-### Combination with other source code transformations
-As tomato doesn't do any source code transformations itself, you'd need to combine it with one of the above approaches.
-Unfortunately chaining multiple loaders with node doesn't work very well yet, so the advice is to run compilation and tests in separate processes.
-E.g.
+## Source code transformations in watch mode
+Essentially you just have to combine it with one of the above:
 
+### 1. Run source code transformations separately
 Terminal 1:
 ```
 tsc -w
@@ -63,6 +56,16 @@ terminal 2:
 find lib/**/*.test.js | node --loader tomato/loader tomato -w
 ```
 
+### 2. Chain multiple loaders (Node >= 18.16.0)
+```
+find src/**/*.test.ts | NODE_OPTIONS="--loader ts-node/esm --loader @tiddo/tomato/loader" tomato
+```
+
+Please note that the tomato-loader must be the **last** in the chain.
+
+**Warning**: As of writing, the ts-node loader does not work on Node v20.0.0. See https://github.com/TypeStrong/ts-node/issues/1997.
+
+## Caveats:
 ### Picking up new files
 This won't pick up on newly added test files. Just restart the process for that.
 
@@ -78,7 +81,7 @@ I'm trying to keep this module as light-weight as possible, which means avoiding
 ## 2. Modern JS first
 E.g. prioritize support for ESM > CommonJS, etc.
 
-## 3. Don't reinvent the wheel, follow the Unix philosophy
+## 3. Don't reinvent the wheel, follow the Unix philosophy and make it composable.
 Whenever possible, we rely on open integration with other tools.
 How we deal with files is a good example of this: instead of building in our own include/exclude files lists, we just take in a list of files to test on stdin. There are plenty of tools out there that can generate a list of files using glob patterns, regular expressions, or anything you want, and that will play nicely together with tomato.
 
@@ -105,11 +108,11 @@ The tests execute from top to bottom, the tests are executed when their statemen
 - [ ] Nested tests
 
 # TODONT
-## Support for source code transformations
-There are perfectly capable tools for that. This shouldn't be built into the test runner, just do this externally.
+## Special support for source code transformations
+There are perfectly capable tools for that. This shouldn't be built into the test runner, just do this externally. (See principle #3)
 
 ## Support for file filters
-Again, there are perfectly capable tools to generate the list of files to test. There's no need to add this into tomato.
+Again, there are perfectly capable tools to generate the list of files to test. There's no need to add this into tomato. (See principle #3)
 
 ## beforeAll/setup
 Since tests run top-to-bottom, this is simply not needed
