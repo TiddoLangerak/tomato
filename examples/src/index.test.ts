@@ -1,4 +1,4 @@
-import { assert, test, given, then, when } from '@tomato/tomato';
+import { expect, test, given, then, when } from '@tomato/tomato';
 import { foo } from './shared-dep.js';
 foo();
 
@@ -14,7 +14,7 @@ await test('successful test', () => {
 
   then("The result is the sum of the 2 numbers");
 
-  assert(res === 3);
+  expect(res).toBe(3);
 });
 
 await test('failing test', () => {
@@ -29,7 +29,7 @@ await test('failing test', () => {
 
   then("The result is the sum of the 2 numbers");
 
-  assert(res === 2);
+  expect(res).toBe(2);
 });
 
 await test('early fail', () => {
