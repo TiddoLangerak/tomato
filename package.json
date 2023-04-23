@@ -1,6 +1,6 @@
 {
   "name": "@tomato/tomato",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Unit test framework using cucumber-style tests",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
