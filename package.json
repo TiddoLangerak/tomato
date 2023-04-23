@@ -25,12 +25,10 @@
   "license": "GPL-3.0-or-later",
   "devDependencies": {
     "@tomato/tomato": "^0.2.3",
-    "typescript": "^5.0.4"
-  },
-  "dependencies": {
     "@types/node": "^18.15.13",
     "pnpm": "^8.3.1",
-    "ts-node": "^10.9.1"
+    "ts-node": "^10.9.1",
+    "typescript": "^5.0.4"
   },
   "files": [
     "lib",
