@@ -1,6 +1,6 @@
 {
   "name": "@tiddo/tomato",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Unit test framework using cucumber-style tests",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -17,7 +17,7 @@
     "tomato": "./lib/cli.js"
   },
   "exports": {
-    "." : "./lib/index.js",
+    ".": "./lib/index.js",
     "./loader": "./loader.mjs"
   },
   "keywords": [],
