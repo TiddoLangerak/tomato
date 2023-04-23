@@ -1,4 +1,4 @@
-import { given, test, then, when } from './index.js';
+import { given, test, then, when } from '@tiddo/tomato';
 //import { foo } from './shared-dep.js';
 //foo();
 
