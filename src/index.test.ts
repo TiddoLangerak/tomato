@@ -1,4 +1,4 @@
-import { assert, test, given, then, when } from '@tomato/tomato';
+import { assert, test, given, then, when } from '@tiddo/tomato';
 import { foo } from './shared-dep.js';
 foo();
 
