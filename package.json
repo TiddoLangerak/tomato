@@ -9,7 +9,7 @@
   "scripts": {
     "clean": "rm -rf lib",
     "build": "tsc",
-    "prepublish": "pnpm run clean && pnpm run build",
+    "prepublishOnly": "pnpm run clean && pnpm run build",
     "test": "find src/*.test.ts | NODE_OPTIONS='--loader ts-node/esm' tomato",
     "watch-test": "find src/*.test.ts | NODE_OPTIONS='--loader ts-node/esm --loader @tiddo/tomato/loader' tomato -w"
   },
