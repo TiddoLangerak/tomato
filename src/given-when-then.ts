@@ -16,6 +16,8 @@ let lastTestFile: string = '';
 // 4. Detect when tests interleave, and error when that happens
 //
 // Probably a combination of 1 & 4 would make most sense
+// TODO 2:
+// - Perhaps description should be optional?
 export async function test(description: string, fn: () => Awaitable<void>) {
   const file = getCallerFile(test);
 

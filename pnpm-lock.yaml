@@ -1,14 +1,14 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@tomato/tomato': ^0.2.3
+  '@tomato/tomato': ^0.3.0
   '@types/node': ^18.15.13
   pnpm: ^8.3.1
   ts-node: ^10.9.1
   typescript: ^5.0.4
 
 devDependencies:
-  '@tomato/tomato': 0.2.3_typescript@5.0.4
+  '@tomato/tomato': 0.3.0
   '@types/node': 18.15.13
   pnpm: 8.3.1
   ts-node: 10.9.1_jplwry3w2vlzigyuop7zuee6tu
@@ -39,17 +39,9 @@ packages:
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: true
 
-  /@tomato/tomato/0.2.3_typescript@5.0.4:
-    resolution: {integrity: sha512-J79hqM/xBbD4YviaswMPJtxCYv4PfLuTt04pzNpL3+JddwyAU83vqoQWfL0oL4wjplJCPALIlB8KL09QhsUBvg==}
+  /@tomato/tomato/0.3.0:
+    resolution: {integrity: sha512-7HYLlSPPEWNcKK2VmurpP+da13v1wucNVa5OWOPb57lBF55tF171SXam2PivXr7qCw1eyL0qnBVDIK504xVXYQ==}
     hasBin: true
-    dependencies:
-      '@types/node': 18.15.13
-      pnpm: 8.3.1
-      ts-node: 10.9.1_jplwry3w2vlzigyuop7zuee6tu
-    transitivePeerDependencies:
-      - '@swc/core'
-      - '@swc/wasm'
-      - typescript
     dev: true
 
   /@tsconfig/node10/1.0.9:
