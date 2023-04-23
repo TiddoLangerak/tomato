@@ -35,6 +35,7 @@ await test('expect.toBe with mismatching expectation', () => {
   then('it fails with a NotIdenticalError');
 
   assert(res.error instanceof NotIdenticalError);
+  // TODO: fix the error message here
   assert(
     res.error.message ===
 `Expected values to be equal.
