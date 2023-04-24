@@ -8,8 +8,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // TODO:
 // - Add more tests here
-// - Consider making the keywords all-caps (e.g. GIVEN WHEN THEN)
-// - Consider making the output all caps
 // - Styling of the output
 await test('successful test', async () => {
   Given("a successful test");
