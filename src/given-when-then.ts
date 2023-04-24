@@ -40,15 +40,15 @@ export async function test(description: string, fn: () => Awaitable<void>) {
   console.log("");
 }
 
-export function given(description: string) {
+export function Given(description: string) {
   console.log(`    Given  ${description}`);
 }
 
-export function when(description: string) {
+export function When(description: string) {
   console.log(`    When   ${description}`);
 }
 
-export function then(description: string) {
+export function Then(description: string) {
   // TODO: figure this out.
   // It seems that ts-node-esm calls module.then, to resolve the promise or something
   if (typeof description === 'function') {
@@ -57,6 +57,6 @@ export function then(description: string) {
   console.log(`    Then   ${description}`);
 }
 
-export function and(description: string) {
+export function And(description: string) {
   console.log(`    And    ${description}`);
 }
