@@ -1,4 +1,4 @@
-import { test, given, when, then} from '@tomato/tomato';
+import { test, given, when, then} from '@tomato/tomato-prev';
 
 import { expect, NotIdenticalError, FunctionDidNotThrowError, IncorrectErrorClass } from './expect.js';
 
@@ -39,8 +39,10 @@ await test('expect.toBe with mismatching expectation', () => {
   assert(
     res.error.message ===
 `Expected values to be equal.
-Expected: 2
-Found: 3`
+Expected:
+    │2
+Found:
+    │3`
         );
 });
 

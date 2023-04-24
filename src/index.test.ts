@@ -1,4 +1,4 @@
-import { test, given, when, then, expect, and } from '@tomato/tomato';
+import { test, given, when, then, expect, and } from '@tomato/tomato-prev';
 import { spawn } from 'node:child_process';
 import { green } from './colors.js';
 import { fileURLToPath } from 'node:url';
@@ -16,16 +16,16 @@ await test('successful test', async () => {
 
   const myTest = `
     test("My test", () => {
-      given("two numbers");
+      Given("two numbers");
 
       const a = 1;
       const b = 2;
 
-      when("adding the numbers");
+      When("adding the numbers");
 
       const sum = a + b;
 
-      then("the sum is correct");
+      Then("the sum is correct");
 
       expect(sum).toBe(3);
     });
@@ -64,11 +64,10 @@ Summary:
 
 async function runTest(test: string) {
   const testFile = `
-  import { test, given, when, then, expect } from './index.js';
+  import { test, Given, When, Then, expect } from './index.js';
 
   ${test}
   `;
-
 
   const childProcess = spawn('node', ['--loader', 'ts-node/esm', '--no-warnings', '--input-type', 'module'], { cwd: __dirname });
   await new Promise<void>((resolve, reject) => {
