@@ -69,7 +69,7 @@ async function runTest(test: string) {
   ${test}
   `;
 
-  const childProcess = spawn('node', ['--loader', 'ts-node/esm', '--no-warnings', '--input-type', 'module'], { cwd: __dirname });
+  const childProcess = spawn('node', ['--loader', 'ts-node/esm', '--no-warnings', '--input-type', 'module'], { cwd: __dirname, env: { ...process.env, NODE_OPTIONS: undefined } });
   await new Promise<void>((resolve, reject) => {
     childProcess.stdin.write(testFile, (err) => {
       err ? reject(err): resolve();

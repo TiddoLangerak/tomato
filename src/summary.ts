@@ -1,5 +1,3 @@
-import { red } from "./colors.js";
-import util from 'util';
 import { formatError, withIndent } from "./util.js";
 
 export type Success = {

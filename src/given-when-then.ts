@@ -1,5 +1,4 @@
 import { green, red } from "./colors.js";
-import util from 'util';
 import { Awaitable, formatError, getCallerFile, withIndent } from "./util.js";
 import { failures, successes } from "./summary.js";
 
