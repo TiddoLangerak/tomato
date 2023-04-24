@@ -1,4 +1,4 @@
-import { test, given, when, then} from '@tomato/tomato-prev';
+import { test, Given, When, Then} from '@tomato/tomato-prev';
 
 import { expect, NotIdenticalError, FunctionDidNotThrowError, IncorrectErrorClass } from './expect.js';
 
@@ -9,30 +9,30 @@ import { expect, NotIdenticalError, FunctionDidNotThrowError, IncorrectErrorClas
  */
 
 await test('expect.toBe with matching expectation', () => {
-  given('a test result');
+  Given('a test result');
 
   const testResult = 3;
 
-  when('it matches the expectation');
+  When('it matches the expectation');
 
   const res = run(() => expect(testResult).toBe(3));
 
-  then('it succeeds');
+  Then('it succeeds');
 
   assert(res.error === undefined);
 
 });
 
 await test('expect.toBe with mismatching expectation', () => {
-  given('a test result');
+  Given('a test result');
 
   const testResult = 3;
 
-  when(`it doesn't match the expectation`);
+  When(`it doesn't match the expectation`);
 
   const res = run(() => expect(testResult).toBe(2));
 
-  then('it fails with a NotIdenticalError');
+  Then('it fails with a NotIdenticalError');
 
   assert(res.error instanceof NotIdenticalError);
   assert(
@@ -46,29 +46,29 @@ Found:
 });
 
 await test('expect.toThrow with function that throws', () => {
-  given('a function that throws');
+  Given('a function that throws');
 
   const f = () => { throw new Error() };
 
-  when('it is expected to throw');
+  When('it is expected to throw');
 
   const res = run(() => expect(f).toThrow());
 
-  then('it succeeds');
+  Then('it succeeds');
 
   assert(res.error === undefined);
 });
 
 await test("expect.toThrow with function that doesn't throw", () => {
-  given("a function that doesn't throw");
+  Given("a function that doesn't throw");
 
   const f = () => {};
 
-  when('it is expected to throw');
+  When('it is expected to throw');
 
   const res = run(() => expect(f).toThrow());
 
-  then('it fails with a FunctionDidNotThrowError');
+  Then('it fails with a FunctionDidNotThrowError');
 
   assert(res.error instanceof FunctionDidNotThrowError);
 });
@@ -76,15 +76,15 @@ await test("expect.toThrow with function that doesn't throw", () => {
 await test("expect.toThrow with a function that throws and an expected exception", () => {
   class MyError extends Error {}
 
-  given("a function that throws a 'MyError'");
+  Given("a function that throws a 'MyError'");
 
   const f = () => { throw new MyError() };
 
-  when("it is expected to throw a 'MyError'");
+  When("it is expected to throw a 'MyError'");
 
   const res = run(() => expect(f).toThrow(MyError));
 
-  then('it succeeds');
+  Then('it succeeds');
 
   assert(res.error === undefined);
 });
@@ -93,15 +93,15 @@ await test("expected.toThrow with a function that throws and a different expecte
   class MyError extends Error {}
   class YourError extends Error {}
 
-  given("a function that throws a 'MyError'");
+  Given("a function that throws a 'MyError'");
 
   const f = () => { throw new MyError() };
 
-  when("it is expected to throw a 'YourError'");
+  When("it is expected to throw a 'YourError'");
 
   const res = run(() => expect(f).toThrow(YourError));
 
-  then("it fails with an IncorrectErrorClass error");
+  Then("it fails with an IncorrectErrorClass error");
 
   assert(res.error instanceof IncorrectErrorClass);
   // TODO: this error message can be more descriptive

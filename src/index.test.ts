@@ -1,4 +1,4 @@
-import { test, given, when, then, expect, and } from '@tomato/tomato-prev';
+import { test, Given, When, Then, expect, And } from '@tomato/tomato-prev';
 import { spawn } from 'node:child_process';
 import { green } from './colors.js';
 import { fileURLToPath } from 'node:url';
@@ -12,7 +12,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // - Consider making the output all caps
 // - Styling of the output
 await test('successful test', async () => {
-  given("a successful test");
+  Given("a successful test");
 
   const myTest = `
     test("My test", () => {
@@ -31,15 +31,15 @@ await test('successful test', async () => {
     });
   `;
 
-  when('executing the test');
+  When('executing the test');
 
   const { stdout, stderr, code } = await runTest(myTest);
 
-  then('the process exits with code 0');
+  Then('the process exits with code 0');
 
   expect(code).toBe(0);
 
-  and('the output is as expected');
+  And('the output is as expected');
 
   expect(stdout).toBe(
 `File: ${__dirname}/[eval1]

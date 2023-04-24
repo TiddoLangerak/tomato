@@ -24,7 +24,7 @@
   "author": "Tiddo Langerak",
   "license": "GPL-3.0-or-later",
   "devDependencies": {
-    "@tomato/tomato-prev": "npm:@tomato/tomato@^0.3.2",
+    "@tomato/tomato-prev": "npm:@tomato/tomato@^0.4.0",
     "@types/node": "^18.15.13",
     "pnpm": "^8.3.1",
     "ts-node": "^10.9.1",
