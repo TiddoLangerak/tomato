@@ -28,7 +28,8 @@ export function formatError(e: any): string {
 }
 
 export function withIndent(msg: string, indent: string): string {
-  return msg.replaceAll(/^/mg, indent);
+  // Don't indent empty lines
+  return msg.replaceAll(/^(?=.)/mg, indent);
 }
 
 export function formatValue(val: any): string {

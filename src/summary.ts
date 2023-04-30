@@ -20,22 +20,22 @@ export function printAndResetSummary() {
     console.log("Summary:");
     console.log(`    Successes: ${successes.length}`);
     console.log(`    Failures: ${failures.length}`);
+    console.log("");
 
     if (failures.length) {
-      console.log("");
-      console.log("Tests failed:");
+      console.error("Tests failed:");
     }
     for (const failure of failures) {
       if (failure.file !== lastFile) {
-        console.log(`    File: ${failure.file}`);
-        console.log("");
+        console.error(`    File: ${failure.file}`);
+        console.error("");
       }
       lastFile = failure.file;
-      console.log(`        Test: ${failure.description}`);
-      console.log(`        Failure:`);
+      console.error(`        Test: ${failure.description}`);
+      console.error(`        Failure:`);
       console.error(withIndent(formatError(failure.error) , '            '));
     }
-    console.log("\n══════════════════════════════");
+    console.log("══════════════════════════════");
     successes = [];
     failures = [];
   }

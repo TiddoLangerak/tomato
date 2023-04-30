@@ -1,6 +1,6 @@
 import { test, Given, When, Then, expect, And } from '@tomato/tomato-prev';
 import { spawn } from 'node:child_process';
-import { green } from './colors.js';
+import { green, red } from './colors.js';
 import { fileURLToPath } from 'node:url';
 import {dirname} from 'node:path';
 
@@ -31,7 +31,7 @@ await test('successful test', async () => {
 
   When('executing the test');
 
-  const { stdout, stderr, code } = await runTest(myTest);
+  const { code, output } = await runTest(myTest);
 
   Then('the process exits with code 0');
 
@@ -39,25 +39,93 @@ await test('successful test', async () => {
 
   And('the output is as expected');
 
-  expect(stdout).toBe(
-`File: ${__dirname}/[eval1]
-
-    Test: My test
-
-    Given  two numbers
-    When   adding the numbers
-    Then   the sum is correct
-           ${green("Test succeeded")}
-
-══════════════════════════════
-
-Summary:
-    Successes: 1
-    Failures: 0
-
-══════════════════════════════
+  expect(output).toBe(
+`out:File: ${__dirname}/[eval1]
+out:
+out:    Test: My test
+out:
+out:    Given  two numbers
+out:    When   adding the numbers
+out:    Then   the sum is correct
+out:           ${green("Test succeeded")}
+out:
+out:══════════════════════════════
+out:
+out:Summary:
+out:    Successes: 1
+out:    Failures: 0
+out:
+out:══════════════════════════════
 `
   );
+});
+
+await test('Failing test', async () => {
+  Given('A failed test');
+  const myTest = `
+    test("My test", () => {
+      Given("two numbers");
+
+      const a = 1;
+      const b = 2;
+
+      When("adding the numbers");
+
+      const sum = a + b;
+
+      Then("the sum is correct");
+
+      expect(sum).toBe(4);
+    });
+  `;
+
+  When('executing the test');
+
+  const { output, code } = await runTest(myTest);
+
+  Then('the process exits with code 0');
+
+  expect(code).toBe(0);
+
+  And('the output is as expected');
+
+  expect(output).toBe(
+`out:File: ${__dirname}/[eval1]
+out:
+out:    Test: My test
+out:
+out:    Given  two numbers
+out:    When   adding the numbers
+out:    Then   the sum is correct
+err:           ${red("Test failed")}
+err:           Expected values to be equal.
+err:           Expected:
+err:               │ 4
+err:           Found:
+err:               │ 3
+err:
+out:
+out:══════════════════════════════
+out:
+out:Summary:
+out:    Successes: 0
+out:    Failures: 1
+out:
+err:Tests failed:
+err:    File: /home/tiddo/repos/tomato/src/[eval1]
+err:
+err:        Test: My test
+err:        Failure:
+err:            Expected values to be equal.
+err:            Expected:
+err:                │ 4
+err:            Found:
+err:                │ 3
+err:
+out:══════════════════════════════
+`
+  );
+
 });
 
 async function runTest(test: string) {
@@ -78,19 +146,35 @@ async function runTest(test: string) {
 
   let stdout = "";
   let stderr = "";
+  let outputs: { type: string, value:string}[] = [];
+  function addToOutput(type: string, value: string | Buffer) {
+    const last = outputs.at(-1);
+    if (last?.type === type) {
+      last.value += value;
+    } else {
+      outputs.push({ type, value: value.toString() });
+    }
+
+  }
   childProcess.stdout.on('data', (data) => {
     stdout += data;
+    addToOutput('out', data);
   });
 
   childProcess.stderr.on('data', (data) => {
     stderr += data;
+    addToOutput('err', data);
   });
 
   const code = await new Promise<number | null>((resolve) => {
     childProcess.on('close', (code) => resolve(code));
   });
 
-  return { stdout, stderr, code };
+  const output = outputs
+    .map(({ type, value }) => `${type}:` + value.toString().replaceAll(/\n(?!$)/g, `\n${type}:`))
+    .join('');
+
+  return { stdout, stderr, output, code };
 
 }
 

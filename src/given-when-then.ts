@@ -32,7 +32,7 @@ export async function test(description: string, fn: () => Awaitable<void>) {
     console.log(`           ${green("Test succeeded")}`);
     successes.push({ description, file });
   } catch (e) {
-    console.log(`           ${red("Test failed")}`);
+    console.error(`           ${red("Test failed")}`);
     console.error(withIndent(formatError(e), '           '));
     failures.push({ description, file, error: e });
   }
