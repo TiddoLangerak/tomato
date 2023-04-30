@@ -1,3 +1,4 @@
+import { green, red } from "./colors.js";
 import { formatValue, withIndent } from "./util.js";
 import util from 'node:util';
 
@@ -6,8 +7,43 @@ export type ExpectationError = {
 };
 
 export class BaseExpectationError extends Error {
-  constructor(private msg: string) { super(msg); }
+  constructor(protected msg: string) { super(msg); }
   displayError = () => this.msg;
+}
+
+function diff<T>(expected: T, other: T, indent: string) {
+  if (typeof expected !== 'string' || typeof other !== 'string') {
+    return '';
+  }
+    const expectedLines = expected.split('\n');
+    const otherLines = other.split('\n');
+
+    // TODO:
+    // - this should be cleanned up some
+    // - Should use a better diff algo
+    // - Probably just should use the unix one if possible
+    //
+    // TODO2:
+    // - Instead of diffing here, we might just want to persist it to disk
+    let diff = [];
+    for (let i = 0; i < expectedLines.length; i++) {
+      if (expectedLines[i] === otherLines[i]) {
+        diff.push(`  ${expectedLines[i]}`);
+      } else {
+        diff.push(red(`- ${expectedLines[i]}`));
+        if (i < otherLines.length) {
+          diff.push(green(`+ ${otherLines[i]}`));
+        }
+      }
+    }
+    for (let i = expectedLines.length; i < otherLines.length; i++) {
+      diff.push(green(`+ ${otherLines[i]}`));
+    }
+
+    return `Diff:
+
+    ${withIndent(diff.join('\n'), indent)}
+    `;
 }
 
 export class NotIdenticalError<T> extends BaseExpectationError {
@@ -15,9 +51,10 @@ export class NotIdenticalError<T> extends BaseExpectationError {
     super(
 `Expected values to be equal.
 Expected:
-${withIndent(formatValue(expected), '    │')}
+${withIndent(formatValue(expected), '    │ ')}
 Found:
-${withIndent(formatValue(other), '    │')}`);
+${withIndent(formatValue(other), '    │ ')}
+${diff(expected, other, '    ')}`);
   }
 }
 
