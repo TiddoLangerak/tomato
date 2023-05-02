@@ -1,6 +1,7 @@
-import { test, Given, When, Then} from '@tomato/tomato-prev';
+import { test, Given, When, Then, And} from '@tomato/tomato-prev';
 
 import { expect, NotIdenticalError, FunctionDidNotThrowError, IncorrectErrorClass } from './expect.js';
+import { __resetDifftool, __setDifftool } from './diff.js';
 
 /**
  * Note that we can't use expectations here directly ourselves, as this is what we're testing :)
@@ -43,6 +44,39 @@ Expected:
 Found:
     │ 3`
         );
+});
+
+await test(`expect.toBe with mismatching test based expection`, async () => {
+  Given('a text based test result');
+
+  const testResult = "foo\nbar";
+
+  And('a mock difftool');
+
+  __setDifftool("cat");
+
+  When("the text doesn't match the expectation");
+
+  const res = run(() => expect(testResult).toBe("baz\n"));
+
+  Then("the error includes the output of the difftool");
+
+  assert(
+    await res.error.displayError() ===
+`Expected values to be equal.
+Expected:
+    │ baz
+
+Found:
+    │ foo
+    │ bar
+Diff command output:
+    │ baz
+    │ foo
+    │ bar`);
+
+  // TODO: proper cleanup, also on failure
+  __resetDifftool();
 });
 
 // TODO: difftool test

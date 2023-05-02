@@ -20,6 +20,7 @@ Expected:
 ${withIndent(formatValue(expected), '    │ ')}
 Found:
 ${withIndent(formatValue(other), '    │ ')}`);
+
   this.msgWithDiff = diff(expected, other)
     .then(diff => {
       if (diff) {
@@ -68,6 +69,7 @@ export function expect<T>(subject: T): Expectation<T> {
     }
   }
 
+  // This can probably be done nicer. Ah well.
   if (typeof subject === 'function') {
     const func: FunctionExpectation<T & Function> = {
       toThrow: (expected?: Function) => {

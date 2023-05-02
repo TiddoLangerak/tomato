@@ -3,7 +3,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { run } from "./process.js";
 
-const difftool = process.env.DIFFTOOL || 'git diff --color=always';
+const initialDifftool = process.env.DIFFTOOL || 'git diff --color=always';
+let difftool = initialDifftool;
+
 
 export async function diff<T>(expected: T, actual: T) {
   if (typeof expected !== 'string' || typeof actual !== 'string') {
@@ -30,3 +32,13 @@ export async function diff<T>(expected: T, actual: T) {
   const output = outputs.map(({ value }) => value).join('');
   return output;
 }
+
+// Mainly intended for testing
+export function __setDifftool(newDifftool: string) {
+  difftool = newDifftool;
+}
+
+export function __resetDifftool() {
+  difftool = initialDifftool;
+}
+
