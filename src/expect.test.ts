@@ -45,6 +45,8 @@ Found:
         );
 });
 
+// TODO: difftool test
+
 await test('expect.toThrow with function that throws', () => {
   Given('a function that throws');
 
