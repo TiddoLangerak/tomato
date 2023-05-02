@@ -39,9 +39,9 @@ await test('expect.toBe with mismatching expectation', () => {
     res.error.message ===
 `Expected values to be equal.
 Expected:
-    │2
+    │ 2
 Found:
-    │3`
+    │ 3`
         );
 });
 
