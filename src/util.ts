@@ -19,7 +19,7 @@ export function getCallerFile(currentFunc: Function): string {
 export type Awaitable<T> = Promise<T> | T;
 
 
-export function formatError(e: any): string {
+export function formatError(e: any): Awaitable<string> {
   if (e && typeof e === 'object' && 'displayError' in e && typeof e.displayError === 'function') {
     return e.displayError();
   } else {

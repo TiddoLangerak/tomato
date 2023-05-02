@@ -72,6 +72,14 @@ This won't pick up on newly added test files. Just restart the process for that.
 ### CommonJS modules
 The watcher only picks up on ESM modules, not CommonJS modules.
 
+# Configuration
+
+The tool has very minimal configuration. At the moment, the only configuration is what we use as a diff tool for generating text diffs. The difftool can be configured with the environmental variable `DIFFTOOL`, and defaults to `git diff --color=always`. The difftool will get passed 2 file paths: the first is a path with the "expected" text, and the second with the "actual" text. Whatever output the difftool generates will be included in the test. Example:
+
+```
+DIFFTOOL=diff node my-test.test.js
+```
+
 ----
 
 # Design principles & considerations

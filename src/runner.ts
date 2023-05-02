@@ -88,7 +88,7 @@ async function runTests(files: Iterable<string>) {
     }
   }
 
-  printAndResetSummary();
+  await printAndResetSummary();
 
   if (watchMode) {
     globalThis.__tomato_port?.postMessage({

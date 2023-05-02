@@ -13,7 +13,7 @@ export let successes: Success[] = [];
 export let failures: Failure[] = [];
 
 // TODO: this seems to be broken, nothing prints for either watch or non-watch mode
-export function printAndResetSummary() {
+export async function printAndResetSummary() {
   let lastFile: string = "";
   if (successes.length || failures.length) {
     console.log("══════════════════════════════\n");
@@ -33,7 +33,7 @@ export function printAndResetSummary() {
       lastFile = failure.file;
       console.error(`        Test: ${failure.description}`);
       console.error(`        Failure:`);
-      console.error(withIndent(formatError(failure.error) , '            '));
+      console.error(withIndent(await formatError(failure.error) , '            '));
     }
     console.log("══════════════════════════════");
     successes = [];

@@ -1,9 +1,11 @@
-import { green, red } from "./colors.js";
-import { formatValue, withIndent } from "./util.js";
-import util from 'node:util';
+import { Awaitable, formatValue, withIndent } from "./util.js";
+import fs from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { run } from "./process.js";
 
 export type ExpectationError = {
-  displayError: () => string;
+  displayError: () => Awaitable<string>;
 };
 
 export class BaseExpectationError extends Error {
@@ -11,51 +13,54 @@ export class BaseExpectationError extends Error {
   displayError = () => this.msg;
 }
 
-function diff<T>(expected: T, other: T, indent: string) {
-  if (typeof expected !== 'string' || typeof other !== 'string') {
+// TODO: default diff tool
+const difftool = process.env.DIFFTOOL || 'git diff --color=always';
+
+async function diff<T>(expected: T, actual: T) {
+  if (typeof expected !== 'string' || typeof actual !== 'string') {
     return '';
   }
-    const expectedLines = expected.split('\n');
-    const otherLines = other.split('\n');
 
-    // TODO:
-    // - this should be cleanned up some
-    // - Should use a better diff algo
-    // - Probably just should use the unix one if possible
-    //
-    // TODO2:
-    // - Instead of diffing here, we might just want to persist it to disk
-    let diff = [];
-    for (let i = 0; i < expectedLines.length; i++) {
-      if (expectedLines[i] === otherLines[i]) {
-        diff.push(`  ${expectedLines[i]}`);
-      } else {
-        diff.push(red(`- ${expectedLines[i]}`));
-        if (i < otherLines.length) {
-          diff.push(green(`+ ${otherLines[i]}`));
-        }
-      }
-    }
-    for (let i = expectedLines.length; i < otherLines.length; i++) {
-      diff.push(green(`+ ${otherLines[i]}`));
-    }
+  const dir = await fs.mkdtemp(join(tmpdir(), 'tomato-'))
+  const expectedFile = join(dir, `expected`);
+  const actualFile = join(dir, `actual`);
+  await Promise.all([
+    fs.writeFile(expectedFile, expected),
+    fs.writeFile(actualFile, actual)
+  ]);
 
-    return `Diff:
-
-    ${withIndent(diff.join('\n'), indent)}
-    `;
+  const { outputs } = await run('/bin/bash', ["-c", `${difftool} ${expectedFile} ${actualFile}`]);
+  // In theory, we could do a rm -rf, but that's risky in the presence of potential bugs.
+  // If somehow `dir` gets corrupted, I don't want to risk removing non test files.
+  // Since it's just 2 files and a folder, we can remove it by hand
+  await Promise.all([
+    fs.unlink(expectedFile),
+    fs.unlink(actualFile),
+  ]);
+  await fs.rmdir(dir);
+  const output = outputs.map(({ value }) => value).join('');
+  return output;
 }
 
-export class NotIdenticalError<T> extends BaseExpectationError {
+export class NotIdenticalError<T> extends Error implements ExpectationError {
+  msgWithDiff: Promise<string>;
   constructor(expected: T, other: T) {
     super(
 `Expected values to be equal.
 Expected:
 ${withIndent(formatValue(expected), '    │ ')}
 Found:
-${withIndent(formatValue(other), '    │ ')}
-${diff(expected, other, '    ')}`);
+${withIndent(formatValue(other), '    │ ')}`);
+  this.msgWithDiff = diff(expected, other)
+    .then(diff => {
+      if (diff) {
+        return `${this.message}\nDiff command output:\n${withIndent(diff, '    │ ')}`;
+      } else {
+        return `${this.message}\n`;
+      }
+    });
   }
+  displayError = () => this.msgWithDiff;
 }
 
 export class FunctionDidNotThrowError extends BaseExpectationError {
