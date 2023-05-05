@@ -1,9 +1,7 @@
-import { test, Given, When, Then, And} from '@tomato/tomato-prev';
+import { test, Given, When, Then, And, run } from '@tomato/tomato-prev';
 
 import { expect, NotIdenticalError, FunctionDidNotThrowError, IncorrectErrorClass } from './expect.js';
 import { __resetDifftool, __setDifftool } from './diff.js';
-// TODO: add to tomato-prev after release
-import { run } from './helpers.js';
 
 /**
  * Note that we can't use expectations here directly ourselves, as this is what we're testing :)
