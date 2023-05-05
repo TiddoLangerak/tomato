@@ -8,7 +8,8 @@ import util from 'util';
 export function getCallerFile(currentFunc: Function): string {
   const cap: { stack: string } = { stack: ""};
   Error.captureStackTrace(cap, currentFunc);
-  const caller = cap.stack.split("\n")[1].trim().substring('at '.length);
+  const firstLine = cap.stack.split("\n")[1].trim().substring('at '.length);
+  const caller = firstLine.match(/\((.*)\)/)?.[1] ?? firstLine;
   const file = fileURLToPath(caller);
   const locationIndex = file.indexOf(':');
   return locationIndex === -1
