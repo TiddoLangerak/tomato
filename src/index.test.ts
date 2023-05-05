@@ -9,7 +9,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // TODO:
 // - Add more tests here
-// - Styling of the output
 await test('successful test', async () => {
   Given("a successful test");
 
