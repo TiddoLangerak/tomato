@@ -1,6 +1,7 @@
 import { green, red } from "./colors.js";
 import { Awaitable, formatError, getCallerFile, preventParallelExecution, withIndent } from "./util.js";
 import { failures, successes } from "./summary.js";
+import { reporter } from './reporter.js';
 
 let lastTestFile: string = '';
 
@@ -22,43 +23,20 @@ export const test = preventParallelExecution(
   async function test(description: string, fn: () => Awaitable<void>) {
     const file = getCallerFile(test);
 
-    if (file !== lastTestFile) {
-      console.log(`File: ${file}`);
-      console.log("");
-    }
-    lastTestFile = file;
-    console.log(`    Test: ${description}`)
-    console.log("");
+    await reporter.startExecution(file, description);
     try {
       await fn();
-      console.log(`           ${green("Test succeeded")}`);
+      await reporter.success();
       successes.push({ description, file });
     } catch (e) {
-      console.error(`           ${red("Test failed")}`);
-      console.error(withIndent(await formatError(e), '           '));
+      await reporter.failure(e);
       failures.push({ description, file, error: e });
     }
-    console.log("");
   }
 );
 
-export function Given(description: string) {
-  console.log(`    Given  ${description}`);
-}
+export const Given = reporter.given;
+export const When = reporter.when;
+export const Then = reporter.then;
+export const And = reporter.and;
 
-export function When(description: string) {
-  console.log(`    When   ${description}`);
-}
-
-export function Then(description: string) {
-  // TODO: figure this out.
-  // It seems that ts-node-esm calls module.then, to resolve the promise or something
-  if (typeof description === 'function') {
-    return;
-  }
-  console.log(`    Then   ${description}`);
-}
-
-export function And(description: string) {
-  console.log(`    And    ${description}`);
-}

@@ -1,4 +1,3 @@
-import { MappedAwaitable, Unpromise, maybeAsync } from "./async.js";
 import { Result } from "./result.js";
 import { Awaitable } from "./util.js";
 
