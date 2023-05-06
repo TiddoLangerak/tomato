@@ -1,3 +1,4 @@
+  // TODO: assertions for exceptions
 import { diff } from "./diff.js";
 import { Awaitable, formatValue, withIndent } from "./util.js";
 
