@@ -1,52 +1,8 @@
-import { green, red } from "./colors.js";
-import { Awaitable, formatError, getCallerFile, preventParallelExecution, withIndent } from "./util.js";
+import { Awaitable, getCallerFile, preventParallelExecution, withIndent } from "./util.js";
 import { failures, successes } from "./summary.js";
 import { reporter } from './reporter.js';
+import { CleanupHook, currentContext, withContext } from "./context.js";
 
-type CleanupHook = () => Awaitable<unknown>;
-
-// TODO next time:
-// - Hook the context into the global scope
-// - Then we can use it for reporting, nested tests, etc.
-type Context = {
-  parentContext: Context | null;
-  ending: boolean;
-  cleanupHooks: CleanupHook[];
-}
-
-let lastTestFile: string = '';
-let isCleaning = false;
-const cleanupHooks: (CleanupHook)[] = [];
-
-let currentContext: Context = {
-  parentContext: null,
-  ending: false,
-  cleanupHooks: []
-};
-
-async function cleanup(context: Context) {
-  await Promise.allSettled(
-    context.cleanupHooks.splice(0, Number.POSITIVE_INFINITY)
-      .map(f => f())
-  );
-}
-
-async function withContext(cb: (ctx: Context) => Awaitable<unknown>) {
-  const parentContext = currentContext;
-  currentContext = {
-    parentContext,
-    ending: false,
-    cleanupHooks: []
-  }
-
-  try {
-    await cb(currentContext);
-  } finally {
-    currentContext.ending = true;
-    await cleanup(currentContext);
-    currentContext = parentContext
-  }
-};
 
 // TODO:
 // Find something for how to make this a little better.
@@ -56,7 +12,7 @@ async function withContext(cb: (ctx: Context) => Awaitable<unknown>) {
 // 1. Not require await if the test isn't async.
 // 2. Allow interweaving of tests - but this requires capturing logs, and might turn out to be noisy
 // 3. Auto-queue tests - but this breaks the top-to-bottom principle
-// 4. Detect when tests interleave, and error when that happens
+// 4. Detect when tests interleave, and error when that happens (DONE)
 //
 // Probably a combination of 1 & 4 would make most sense
 // TODO 2:
@@ -86,8 +42,8 @@ export const Then = reporter.then;
 export const And = reporter.and;
 
 export function onCleanup(cleanup: CleanupHook) {
-  if (currentContext.ending) {
-    throw new Error("Can't schedule cleanup hooks when the context is ending")
+  if (!currentContext) {
+    throw new Error("Cannot schedule cleanup after tests have ended");
   }
-  currentContext.cleanupHooks.push(cleanup);
+  currentContext.addCleanupHook(cleanup);
 }

@@ -7,8 +7,6 @@ import { run } from './process.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-// TODO:
-// - Add more tests here
 await test('successful test', async () => {
   Given("a successful test");
 
@@ -60,6 +58,50 @@ out:═════════════════════════�
   expect(exitCode).toBe(0);
 
 });
+
+await test('test suite with global cleanup hook', async () => {
+  Given("a test suite with a global cleanup hook");
+
+  const myTest = `
+    onCleanup(() => console.log("I'm being cleaned up"));
+    await test("My test", () => {});
+    await test("My other test", () => {});
+  `;
+
+  When('executing the test');
+
+  const { exitCode, output } = await runTest(myTest);
+
+  Then('the cleanup is run before exit');
+
+  expect(output).toBe(
+`out:File: ${__dirname}/[eval1]
+out:
+out:    Test: My test
+out:
+out:           ${green("Test succeeded")}
+out:
+out:    Test: My other test
+out:
+out:           ${green("Test succeeded")}
+out:
+out:I'm being cleaned up
+out:══════════════════════════════
+out:
+out:Summary:
+out:    Successes: 2
+out:    Failures: 0
+out:
+out:══════════════════════════════
+`
+  );
+
+  And('the process exits with code 0');
+
+  expect(exitCode).toBe(0);
+
+});
+
 
 await test('Failing test', async () => {
   Given('A failed test');
@@ -131,7 +173,7 @@ out:═════════════════════════�
 
 async function runTest(test: string) {
   const testFile = `
-  import { test, Given, When, Then, expect } from './index.js';
+  import { test, Given, When, Then, expect, onCleanup } from './index.js';
 
   ${test}
   `;

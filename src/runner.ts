@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs/promises';
 import { printAndResetSummary } from './summary.js';
 import { fileURLToPath } from 'node:url';
+import { withContext } from './context.js';
 
 const testFiles = new Set();
 const watchMode = process.argv[2] === '-w';
@@ -80,7 +81,7 @@ async function runTests(files: Iterable<string>) {
   [...files].forEach(f => testFiles.add(f));
   for (const file of files) {
     try {
-      await import(`${file}?_tomato=${Date.now()}`);
+      await withContext(async () => await import(`${file}?_tomato=${Date.now()}`));
     } catch(e) {
       console.error(`Failed running file ${file}`, e);
     }
