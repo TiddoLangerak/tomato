@@ -24,7 +24,7 @@ const cleanupHooks: (CleanupHook)[] = [];
 // - Perhaps description should be optional?
 export const test = preventParallelExecution(
   "Cannot run multiple tests in parallel. Did you forget to `await` your test?",
-  async function test(description: string, fn: () => Awaitable<void>) {
+  async function(description: string, fn: () => Awaitable<void>) {
     const file = getCallerFile(test);
 
     await reporter.startExecution(file, description);
