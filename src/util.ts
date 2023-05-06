@@ -36,3 +36,18 @@ export function withIndent(msg: string, indent: string): string {
 export function formatValue(val: any): string {
   return typeof val === 'string' ? val : util.inspect(val);
 }
+
+export function preventParallelExecution<A extends any[], R>(msg: string, fn: (...args: A) => Awaitable<R>): (...args: A) => Promise<R> {
+  let isRunning = false;
+  return async (...args: A): Promise<R> => {
+    if (isRunning) {
+      throw new Error(msg);
+    }
+    isRunning = true;
+    try {
+      return await fn(...args);
+    } finally {
+      isRunning = false;
+    }
+  }
+}

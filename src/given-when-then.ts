@@ -1,5 +1,5 @@
 import { green, red } from "./colors.js";
-import { Awaitable, formatError, getCallerFile, withIndent } from "./util.js";
+import { Awaitable, formatError, getCallerFile, preventParallelExecution, withIndent } from "./util.js";
 import { failures, successes } from "./summary.js";
 
 let lastTestFile: string = '';
@@ -17,27 +17,30 @@ let lastTestFile: string = '';
 // Probably a combination of 1 & 4 would make most sense
 // TODO 2:
 // - Perhaps description should be optional?
-export async function test(description: string, fn: () => Awaitable<void>) {
-  const file = getCallerFile(test);
+export const test = preventParallelExecution(
+  "Cannot run multiple tests in parallel. Did you forget to `await` your test?",
+  async function test(description: string, fn: () => Awaitable<void>) {
+    const file = getCallerFile(test);
 
-  if (file !== lastTestFile) {
-    console.log(`File: ${file}`);
+    if (file !== lastTestFile) {
+      console.log(`File: ${file}`);
+      console.log("");
+    }
+    lastTestFile = file;
+    console.log(`    Test: ${description}`)
+    console.log("");
+    try {
+      await fn();
+      console.log(`           ${green("Test succeeded")}`);
+      successes.push({ description, file });
+    } catch (e) {
+      console.error(`           ${red("Test failed")}`);
+      console.error(withIndent(await formatError(e), '           '));
+      failures.push({ description, file, error: e });
+    }
     console.log("");
   }
-  lastTestFile = file;
-  console.log(`    Test: ${description}`)
-  console.log("");
-  try {
-    await fn();
-    console.log(`           ${green("Test succeeded")}`);
-    successes.push({ description, file });
-  } catch (e) {
-    console.error(`           ${red("Test failed")}`);
-    console.error(withIndent(await formatError(e), '           '));
-    failures.push({ description, file, error: e });
-  }
-  console.log("");
-}
+);
 
 export function Given(description: string) {
   console.log(`    Given  ${description}`);
