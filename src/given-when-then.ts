@@ -5,9 +5,48 @@ import { reporter } from './reporter.js';
 
 type CleanupHook = () => Awaitable<unknown>;
 
+// TODO next time:
+// - Hook the context into the global scope
+// - Then we can use it for reporting, nested tests, etc.
+type Context = {
+  parentContext: Context | null;
+  ending: boolean;
+  cleanupHooks: CleanupHook[];
+}
+
 let lastTestFile: string = '';
 let isCleaning = false;
 const cleanupHooks: (CleanupHook)[] = [];
+
+let currentContext: Context = {
+  parentContext: null,
+  ending: false,
+  cleanupHooks: []
+};
+
+async function cleanup(context: Context) {
+  await Promise.allSettled(
+    context.cleanupHooks.splice(0, Number.POSITIVE_INFINITY)
+      .map(f => f())
+  );
+}
+
+async function withContext(cb: (ctx: Context) => Awaitable<unknown>) {
+  const parentContext = currentContext;
+  currentContext = {
+    parentContext,
+    ending: false,
+    cleanupHooks: []
+  }
+
+  try {
+    await cb(currentContext);
+  } finally {
+    currentContext.ending = true;
+    await cleanup(currentContext);
+    currentContext = parentContext
+  }
+};
 
 // TODO:
 // Find something for how to make this a little better.
@@ -25,21 +64,19 @@ const cleanupHooks: (CleanupHook)[] = [];
 export const test = preventParallelExecution(
   "Cannot run multiple tests in parallel. Did you forget to `await` your test?",
   async function(description: string, fn: () => Awaitable<void>) {
-    const file = getCallerFile(test);
+    await withContext(async () => {
+      const file = getCallerFile(test);
 
-    await reporter.startExecution(file, description);
-    try {
-      await fn();
-      await reporter.success();
-      successes.push({ description, file });
-    } catch (e) {
-      await reporter.failure(e);
-      failures.push({ description, file, error: e });
-    }
-
-    isCleaning = true;
-    await Promise.allSettled(cleanupHooks.splice(0, Number.POSITIVE_INFINITY).map(f => f()));
-    isCleaning = false;
+      await reporter.startExecution(file, description);
+      try {
+        await fn();
+        await reporter.success();
+        successes.push({ description, file });
+      } catch (e) {
+        await reporter.failure(e);
+        failures.push({ description, file, error: e });
+      }
+    });
   }
 );
 
@@ -49,8 +86,8 @@ export const Then = reporter.then;
 export const And = reporter.and;
 
 export function onCleanup(cleanup: CleanupHook) {
-  if (isCleaning) {
-    throw new Error("Can't schedule cleanup hooks during cleanup")
+  if (currentContext.ending) {
+    throw new Error("Can't schedule cleanup hooks when the context is ending")
   }
-  cleanupHooks.push(cleanup);
+  currentContext.cleanupHooks.push(cleanup);
 }
