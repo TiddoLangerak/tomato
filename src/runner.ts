@@ -6,7 +6,6 @@ import { fileURLToPath } from 'node:url';
 const testFiles = new Set();
 const watchMode = process.argv[2] === '-w';
 
-
 export async function runAll() {
   const chunks: string[] = [];
 
@@ -78,7 +77,6 @@ function setupLoaderComms() {
 }
 
 async function runTests(files: Iterable<string>) {
-  // TODO: probably needs some extra logic here to make sure only 1 run at a time is triggered
   [...files].forEach(f => testFiles.add(f));
   for (const file of files) {
     try {
@@ -105,7 +103,7 @@ function addWatchers(files: Iterable<string>) {
     .forEach(async file => {
       debugLog(`watching ${file}`);
       watchedFiles.add(file);
-      for await (const event of fs.watch(file)) {
+      for await (const _event of fs.watch(file)) {
         fileChanged(file);
       }
     });

@@ -3,7 +3,11 @@ import { Awaitable, formatError, getCallerFile, preventParallelExecution, withIn
 import { failures, successes } from "./summary.js";
 import { reporter } from './reporter.js';
 
+type CleanupHook = () => Awaitable<unknown>;
+
 let lastTestFile: string = '';
+let isCleaning = false;
+const cleanupHooks: (CleanupHook)[] = [];
 
 // TODO:
 // Find something for how to make this a little better.
@@ -32,6 +36,10 @@ export const test = preventParallelExecution(
       await reporter.failure(e);
       failures.push({ description, file, error: e });
     }
+
+    isCleaning = true;
+    await Promise.allSettled(cleanupHooks.splice(0, Number.POSITIVE_INFINITY).map(f => f()));
+    isCleaning = false;
   }
 );
 
@@ -40,3 +48,9 @@ export const When = reporter.when;
 export const Then = reporter.then;
 export const And = reporter.and;
 
+export function onCleanup(cleanup: CleanupHook) {
+  if (isCleaning) {
+    throw new Error("Can't schedule cleanup hooks during cleanup")
+  }
+  cleanupHooks.push(cleanup);
+}
