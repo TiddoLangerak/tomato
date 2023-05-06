@@ -86,13 +86,15 @@ async function runTests(files: Iterable<string>) {
     }
   }
 
-  await printAndResetSummary();
+  const { failures } = await printAndResetSummary();
 
   if (watchMode) {
     globalThis.__tomato_port?.postMessage({
       type: 'getAllDependencies',
       files: [...files]
     });
+  } else if (failures.length > 0) {
+    process.exit(1);
   }
 }
 

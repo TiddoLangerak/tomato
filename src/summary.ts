@@ -35,7 +35,9 @@ export async function printAndResetSummary() {
       console.error(withIndent(await formatError(failure.error) , '            '));
     }
     console.log("══════════════════════════════");
-    successes = [];
-    failures = [];
   }
+  const res = {successes, failures};
+  successes = [];
+  failures = [];
+  return res;
 }

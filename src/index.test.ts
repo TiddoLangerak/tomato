@@ -123,9 +123,9 @@ out:═════════════════════════�
 `
   );
 
-  And('the process exits with code 0');
+  And('the process exits with code 1');
 
-  expect(exitCode).toBe(0);
+  expect(exitCode).toBe(1);
 
 });
 

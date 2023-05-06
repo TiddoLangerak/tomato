@@ -7,5 +7,10 @@ export * from './helpers.js';
 export * from './reporter.js';
 
 if (!("__tomato_runner" in globalThis)) {
-  process.on('beforeExit', printAndResetSummary);
+  process.on('beforeExit', async () => {
+    const { failures } = await printAndResetSummary();
+    if (failures.length > 0) {
+      process.exit(1);
+    }
+  });
 }
