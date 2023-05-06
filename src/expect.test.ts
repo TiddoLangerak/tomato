@@ -20,7 +20,7 @@ await test('expect.toBe with matching expectation', () => {
 
   Then('it succeeds');
 
-  assert(res.error === undefined);
+  assert(res.err === undefined);
 
 });
 
@@ -35,9 +35,9 @@ await test('expect.toBe with mismatching expectation', () => {
 
   Then('it fails with a NotIdenticalError');
 
-  assert(res.error instanceof NotIdenticalError);
+  assert(res.err instanceof NotIdenticalError);
   assert(
-    res.error.message ===
+    res.err.message ===
 `Expected values to be equal.
 Expected:
     │ 2
@@ -62,7 +62,7 @@ await test(`expect.toBe with mismatching test based expection`, async () => {
   Then("the error includes the output of the difftool");
 
   assert(
-    await res.error.displayError() ===
+    await res.err.displayError() ===
 `Expected values to be equal.
 Expected:
     │ baz
@@ -90,7 +90,7 @@ await test('expect.toThrow with function that throws', () => {
 
   Then('it succeeds');
 
-  assert(res.error === undefined);
+  assert(res.err === undefined);
 });
 
 await test("expect.toThrow with function that doesn't throw", () => {
@@ -104,7 +104,7 @@ await test("expect.toThrow with function that doesn't throw", () => {
 
   Then('it fails with a FunctionDidNotThrowError');
 
-  assert(res.error instanceof FunctionDidNotThrowError);
+  assert(res.err instanceof FunctionDidNotThrowError);
 });
 
 await test("expect.toThrow with a function that throws and an expected exception", () => {
@@ -120,7 +120,7 @@ await test("expect.toThrow with a function that throws and an expected exception
 
   Then('it succeeds');
 
-  assert(res.error === undefined);
+  assert(res.err === undefined);
 });
 
 await test("expected.toThrow with a function that throws and a different expected exception", () => {
@@ -137,10 +137,10 @@ await test("expected.toThrow with a function that throws and a different expecte
 
   Then("it fails with an IncorrectErrorClass error");
 
-  assert(res.error instanceof IncorrectErrorClass);
+  assert(res.err instanceof IncorrectErrorClass);
   // TODO: this error message can be more descriptive
   assert(
-    res.error.message ===
+    res.err.message ===
     `Expected function to throw an instance of YourError, but received Error`
   );
 });
