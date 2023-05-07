@@ -6,14 +6,6 @@ import { green } from './colors.js';
 import fs from 'node:fs/promises';
 const __dirname = getDirname(import.meta.url);
 
-// TODO next time:
-//
-// Start writing tests here, both for watch and runner mode
-// First thing we can test is the onCleanup hook
-//
-// Need to figure out how to run it, since the runner needs real files.
-// Possibly we can create the test files for real somewhere in a test folder or something like that
-
 await test('test with top-level cleanup', async () => {
   Given("a test with a top-level cleanup");
 

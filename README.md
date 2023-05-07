@@ -108,8 +108,6 @@ The tests execute from top to bottom, the tests are executed when their statemen
 # TODO
 - [ ] More assertions
 - [ ] Properly compile to be usable in other projects
-- [ ] Publish
-- [ ] Self test
 - [ ] Watch mode for CommonJS modules
 - [ ] Ignore watches on node_modules
 - [ ] Parallel execution

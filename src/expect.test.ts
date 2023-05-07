@@ -1,12 +1,13 @@
-import { test, Given, When, Then, And, run } from '@tomato/tomato-prev';
+import { test, Given, When, Then, And, run, onCleanup } from '@tomato/tomato-prev';
 
 import { expect, NotIdenticalError, FunctionDidNotThrowError, IncorrectErrorClass } from './expect.js';
 import { __resetDifftool, __setDifftool } from './diff.js';
 
 /**
- * Note that we can't use expectations here directly ourselves, as this is what we're testing :)
+ * Note that we can't use expect here directly ourselves, as this is what we're testing :)
+ * We also don't want to piggy back on older versions, as bugs might be around for longer.
  *
- * TODO: once we've published the first set of expectations, we can piggy-back on older versions
+ * So for our assertions here, we use very simple assertions within the test.
  */
 
 await test('expect.toBe with matching expectation', () => {
@@ -54,6 +55,7 @@ await test(`expect.toBe with mismatching test based expection`, async () => {
   And('a mock difftool');
 
   __setDifftool("cat");
+  onCleanup(() => __resetDifftool());
 
   When("the text doesn't match the expectation");
 
@@ -74,9 +76,6 @@ Diff command output:
     │ baz
     │ foo
     │ bar`);
-
-  // TODO: proper cleanup, also on failure
-  __resetDifftool();
 });
 
 await test('expect.toThrow with function that throws', () => {
@@ -138,7 +137,6 @@ await test("expected.toThrow with a function that throws and a different expecte
   Then("it fails with an IncorrectErrorClass error");
 
   assert(res.err instanceof IncorrectErrorClass);
-  // TODO: this error message can be more descriptive
   assert(
     res.err.message ===
     `Expected function to throw an instance of YourError, but received Error`

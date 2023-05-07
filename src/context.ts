@@ -2,9 +2,7 @@ import { Awaitable } from "./util.js";
 
 export type CleanupHook = () => Awaitable<unknown>;
 // TODO next time:
-// - Test the global & file specific contexts
-// - Hook the context into the global scope
-// - Then we can use it for reporting, nested tests, etc.
+// - Use context for e.g. reporting etc.
 export class Context {
   private parentContext: Context | null = null;
   private ending: boolean = false;
