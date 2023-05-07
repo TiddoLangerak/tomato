@@ -1,11 +1,10 @@
 import { test, Given, When, Then, expect, And } from '@tomato/tomato-prev';
 //import { test, Given, When, Then, expect, And } from './index.js';
 import { green, red } from './colors.js';
-import { fileURLToPath } from 'node:url';
-import {dirname} from 'node:path';
-import { run } from './process.js';
+import { runTest } from './test/runner.js';
+import { getDirname } from './module.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = getDirname(import.meta.url);
 
 await test('successful test', async () => {
   Given("a successful test");
@@ -170,26 +169,3 @@ out:═════════════════════════�
   expect(exitCode).toBe(1);
 
 });
-
-async function runTest(test: string) {
-  const testFile = `
-  import { test, Given, When, Then, expect, onCleanup } from './index.js';
-
-  ${test}
-  `;
-
-
-  const { outputs, stderr, stdout, exitCode} = await run(
-    'node',
-    ['--loader', 'ts-node/esm', '--no-warnings', '--input-type', 'module'],
-    { cwd: __dirname, env: { ...process.env, NODE_OPTIONS: undefined } },
-    testFile
-  );
-
-  const output = outputs
-    .map(({ type, value }) => `${type}:` + value.toString().replaceAll(/\n(?!$)/g, `\n${type}:`))
-    .join('');
-
-  return { stdout, stderr, output, exitCode };
-}
-

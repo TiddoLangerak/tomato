@@ -20,7 +20,7 @@ export async function diff<T>(expected: T, actual: T) {
     fs.writeFile(actualFile, actual)
   ]);
 
-  const { outputs } = await run('/bin/bash', ["-c", `${difftool} ${expectedFile} ${actualFile}`]);
+  const { outputs } = await run('/bin/bash', { args: ["-c", `${difftool} ${expectedFile} ${actualFile}`] });
   // In theory, we could do a rm -rf, but that's risky in the presence of potential bugs.
   // If somehow `dir` gets corrupted, I don't want to risk removing non test files.
   // Since it's just 2 files and a folder, we can remove it by hand

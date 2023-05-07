@@ -1,7 +1,21 @@
 import { SpawnOptions, SpawnOptionsWithoutStdio, spawn } from "node:child_process";
 
-export async function run(command: string, args?: readonly string[], opts?: SpawnOptions, stdin?: string) {
-  const childProcess = spawn(command, args, opts as SpawnOptionsWithoutStdio);
+export type RunOpts = {
+  args?: readonly string[],
+  spawnOpts?: SpawnOptions,
+  stdin?: string,
+  abortSignal?: AbortSignal
+}
+
+export async function run(command: string, { args, spawnOpts, stdin, abortSignal }: RunOpts = {}) {
+  abortSignal?.throwIfAborted();
+
+  const childProcess = spawn(command, args, spawnOpts as SpawnOptionsWithoutStdio);
+
+  abortSignal?.addEventListener("abort", (event) => {
+    childProcess.kill();
+  }, { once: true });
+
   if (stdin) {
     await new Promise<void>((resolve, reject) => {
       childProcess.stdin.write(stdin, (err) => {
